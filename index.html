@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kenneth Acosta</title>
+<meta name="description" content="Kenneth Acosta — software engineering student at UTSA, founding engineer at SaferRing, car guy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#111214;        /* garage at night */
+    --panel:#17191c;
+    --ink:#ece8e0;
+    --soft:#b9b4aa;
+    --muted:#7d7a73;
+    --gold:#e3a64b;      /* Veloce gold */
+    --volt:#5cc8ec;      /* engineering blue */
+    --line:#2a2c30;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;font-size:17px;line-height:1.75;
+    min-height:100vh;display:flex;flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:#111}
+
+  /* full-page code field */
+  #codecar{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:0}
+  header,main,footer{position:relative;z-index:1}
+
+  header{display:flex;justify-content:space-between;align-items:center;padding:24px 34px}
+  .mark{
+    font-family:"Instrument Serif",serif;font-style:italic;font-size:34px;line-height:1;
+    color:var(--ink);text-decoration:none;letter-spacing:-1px;
+    border:1px solid var(--line);border-radius:50%;width:56px;height:56px;
+    display:flex;align-items:center;justify-content:center;transition:border-color .25s,color .25s;
+  }
+  .mark:hover{border-color:var(--gold);color:var(--gold)}
+  nav{display:flex;gap:30px}
+  nav button{
+    background:none;border:0;font:inherit;font-size:15.5px;color:var(--soft);cursor:pointer;
+    padding:4px 0;border-bottom:1px solid transparent;transition:color .2s,border-color .2s;
+  }
+  nav button:hover{color:var(--ink)}
+  nav button.active{color:var(--ink);border-bottom-color:var(--gold)}
+
+  main{flex:1;width:100%;max-width:700px;padding:52px 50px 40px}
+  .view{display:none;animation:fade .45s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .status{
+    display:inline-flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:12.5px;
+    color:var(--soft);border:1px solid var(--line);border-radius:999px;padding:4px 13px;margin-bottom:28px;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 0 rgba(74,222,128,.6);animation:pulse 2s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+
+  h1{font-family:"Instrument Serif",serif;font-weight:400;font-size:54px;line-height:1.05;margin-bottom:36px;letter-spacing:-.5px}
+  h1 em{color:var(--gold);font-style:italic;padding-left:4px}
+  h2{font-family:"Instrument Serif",serif;font-weight:400;font-size:42px;line-height:1.1;margin-bottom:8px}
+  h2 em{color:var(--gold)}
+  p{margin-bottom:22px;color:var(--soft)}
+  p strong{color:var(--ink);font-weight:500}
+  a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--volt);text-underline-offset:4px;text-decoration-thickness:1px;transition:color .2s}
+  a:hover{color:var(--volt)}
+  .hl{color:var(--gold);font-style:italic;font-family:"Instrument Serif",serif;font-size:1.18em}
+
+  .links{display:flex;flex-wrap:wrap;gap:26px;margin-top:34px;font-size:15.5px;align-items:center}
+  .go{color:var(--gold);background:none;border:0;font:inherit;cursor:pointer;padding:0}
+  .go:hover{text-decoration:underline;text-underline-offset:4px}
+  .email{margin-top:16px;font-size:14.5px;color:var(--soft);font-family:"JetBrains Mono",monospace}
+
+  .hint{font-size:14px;color:var(--muted);margin-bottom:30px}
+  .group{margin-bottom:36px}
+  .label{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  details{border-bottom:1px solid var(--line);padding:12px 2px}
+  .group details:first-of-type{border-top:1px solid var(--line)}
+  summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-size:16px;color:var(--ink)}
+  summary::-webkit-details-marker{display:none}
+  summary .t{display:flex;flex-direction:column}
+  summary .sub{font-size:13px;color:var(--gold);letter-spacing:.04em}
+  summary .meta{color:var(--muted);font-size:13px;white-space:nowrap;font-family:"JetBrains Mono",monospace}
+  summary:hover{color:var(--gold)}
+  details .body{padding:12px 4px 4px 0;font-size:15px;color:var(--soft)}
+  details .body ul{padding-left:18px;margin:8px 0 10px}
+  details .body li{margin-bottom:5px}
+  details .body li::marker{color:var(--gold)}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .tags span{font-family:"JetBrains Mono",monospace;font-size:11.5px;border:1px solid var(--line);border-radius:6px;padding:1px 8px;color:var(--volt)}
+  .badge{font-family:"JetBrains Mono",monospace;font-size:11px;color:#111;background:var(--gold);border-radius:4px;padding:1px 6px;margin-left:8px;vertical-align:2px}
+
+  .spec{display:grid;grid-template-columns:120px 1fr;gap:4px 16px;font-size:14px;margin:10px 0}
+  .spec dt{font-family:"JetBrains Mono",monospace;color:var(--muted);font-size:12.5px;padding-top:2px}
+  .spec dd{color:var(--soft)}
+
+  .timeline{border-left:1px solid var(--line);padding-left:22px;margin-top:8px}
+  .tl{margin-bottom:26px;position:relative}
+  .tl:before{content:"";position:absolute;left:-26.5px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--bg);border:1px solid var(--gold)}
+  .tl.now:before{background:var(--gold)}
+  .tl .when{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--muted)}
+  .tl .what{font-size:16px;color:var(--ink)}
+  .tl .where{font-size:14.5px;color:var(--soft)}
+  .stack{margin-top:34px;font-size:14.5px;color:var(--soft)}
+  .stack b{font-family:"JetBrains Mono",monospace;font-weight:400;font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:inline-block;width:110px}
+  .stack div{margin-bottom:6px}
+  .resume-btn{display:inline-block;margin-top:26px;border:1px solid var(--gold);color:var(--gold);text-decoration:none;padding:8px 18px;border-radius:999px;font-size:14.5px;transition:background .2s,color .2s}
+  .resume-btn:hover{background:var(--gold);color:#111}
+
+
+  footer{text-align:center;font-size:13px;color:var(--muted);padding:30px 0 34px;font-family:"JetBrains Mono",monospace}
+
+  @media (max-width:640px){
+    header{padding:18px 20px}
+    nav{gap:16px}
+    nav button{font-size:14.5px}
+    .mark{width:46px;height:46px;font-size:28px}
+    main{padding:34px 22px 30px}
+    h1{font-size:42px}
+    body{font-size:16px}
+    #codecar{display:none}
+    nav{gap:13px}
+    .spec{grid-template-columns:96px 1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- full-page code field + E36 -->
+<canvas id="codecar" aria-hidden="true"></canvas>
+
+<header>
+  <a class="mark" href="#about" data-go="about" aria-label="Kenneth Acosta — home">ka</a>
+  <nav>
+    <button data-go="about">about</button>
+    <button data-go="building">building</button>
+    <button data-go="garage">garage</button>
+    <button data-go="experience">experience</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ABOUT -->
+  <section id="about" class="view">
+    <h1>Hey, I'm<em>Kenneth</em></h1>
+
+    <p>I'm a software engineering student at <strong>UTSA</strong> with a concentration in AI, and I like building things people actually use. Right now I'm the founding engineer at <a href="https://saferring.com" target="_blank" rel="noopener">SaferRing</a>, an AI call-screening app on the App Store that asks unknown callers why they're calling and flags scams before you ever pick up.</p>
+
+    <p>I didn't take the straight path here. I started in mechanical engineering, switched to software, and worked six years as a pest control tech while going to school. Along the way I started my own wrap and tint shop, <strong>Veloce Studio</strong>, and built its website and booking system myself. I'm into app development, software in general, and medical robotics, and long term I want to work where hardware meets software, like embedded systems, DevOps/SRE, and aerospace.</p>
+
+    <p>Outside of code I'm usually in the garage. I like taking things apart to see how they work, whether it's a turbo build, a PC, or a scam call. If I had to describe how I work in one word, it'd be <span class="hl">hands-on</span>.</p>
+
+    <div class="links">
+      <button class="go" data-go="building">what I'm building &rarr;</button>
+      <a href="https://www.linkedin.com/in/kenneth-acosta-0543123a7/" target="_blank" rel="noopener">linkedin</a>
+      <a href="https://github.com/kennethacosta444-sys" target="_blank" rel="noopener">github</a>
+      <a href="resume.pdf" target="_blank" rel="noopener">resume</a>
+    </div>
+    <div class="email">always down to chat: <a href="mailto:kennethacosta444@gmail.com">kennethacosta444@gmail.com</a> · call or text <a href="tel:+19567085077">956-708-5077</a></div>
+  </section>
+
+  <!-- BUILDING -->
+  <section id="building" class="view">
+    <h2>what I'm <em>building</em></h2>
+    <div class="hint">click on anything to learn more</div>
+
+    <div class="group">
+      <div class="label">Shipped</div>
+      <details open>
+        <summary><span class="t"><span class="sub">SaferRing</span><span>AI call-screening app for iPhone <span class="badge">LIVE</span></span></span><span class="meta">2026 – now</span></summary>
+        <div class="body">
+          SaferRing screens unknown callers before your phone rings. People on your contact list go straight through; everyone else gets asked who they are and why they're calling, and you see the reason, a transcript, and any red flags before you answer.
+          <ul>
+            <li>Took it from a browser demo to a paid iOS app on the App Store</li>
+            <li><strong>iPhone app:</strong> SwiftUI with CallKit, push notifications, and Twilio Voice. Guided setup, screening levels, personal rules, call history, and screened-call details</li>
+            <li><strong>Call backend:</strong> TypeScript serverless functions on Netlify verify every Twilio webhook, catch forwarding loops, ask follow-up questions when the caller is vague, then connect, warn, decline, or block</li>
+            <li><strong>Detection:</strong> Claude's read on the call is combined with local checks for code requests, payment changes, remote access, and callers claiming to be a company. Those claims get checked against a library of real support numbers and policies</li>
+            <li><strong>Accounts:</strong> a separate Node service with Better Auth, PostgreSQL, email verification, 2FA, and encrypted backups. Contact sync matches hashed numbers so names never leave the phone</li>
+            <li>Backed by 170+ automated tests plus an evaluation harness for screening accuracy</li>
+          </ul>
+          <a href="https://saferring.com/app/" target="_blank" rel="noopener">saferring.com</a>
+          <div class="tags"><span>SwiftUI</span><span>CallKit</span><span>Twilio Voice</span><span>TypeScript</span><span>Node.js</span><span>PostgreSQL</span><span>Claude API</span></div>
+        </div>
+      </details>
+      <details>
+        <summary><span class="t"><span class="sub">SaferRing</span>Red-teaming the scam detector</span><span class="meta">2026</span></summary>
+        <div class="body">
+          I wrote 24 scam calls built to sneak past filters: swapped-out words, no trigger phrases, the ask split across turns, no urgency. Keyword rules caught <strong>0 of 24</strong>. So I rebuilt detection around Claude reading for intent and kept the rules as an offline fallback.
+          <div class="tags"><span>Testing</span><span>Prompt engineering</span><span>Security</span></div>
+        </div>
+      </details>
+      <details>
+        <summary><span class="t"><span class="sub">SaferRing</span>"They'd never ask that" checks</span><span class="meta">2026</span></summary>
+        <div class="body">
+          Banks, crypto exchanges, Microsoft, and the IRS publicly say what they'll never ask for over the phone. SaferRing flags a caller who claims to be one of them and then asks for exactly that, and shows the company's own policy as proof.
+          <div class="tags"><span>Fraud detection</span><span>Research</span></div>
+        </div>
+      </details>
+    </div>
+
+    <div class="group">
+      <div class="label">Projects</div>
+      <details>
+        <summary><span class="t"><span class="sub">Veloce Studio</span>Business website + booking system</span><span class="meta">2024</span></summary>
+        <div class="body">
+          Built the site for my own wrap and tint shop from scratch and hosted it on GitHub Pages.
+          <ul>
+            <li>Quote and appointment form that emails me every time a customer submits a request</li>
+            <li>Instagram-connected gallery that updates on its own when I post new work</li>
+            <li>A daily AI summary through the Claude API that gives me a rundown of new requests</li>
+          </ul>
+          <div class="tags"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>Claude API</span></div>
+        </div>
+      </details>
+      <details>
+        <summary><span class="t"><span class="sub">UTSA · CS 3773</span>Rowdy's Bookstore: cart &amp; checkout</span><span class="meta">2026</span></summary>
+        <div class="body">
+          Six-person team building an online bookstore. I owned the shopping cart, cart math, discount codes, checkout, and order placement, connected to our Express API and PostgreSQL database.
+          <div class="tags"><span>Node.js</span><span>Express</span><span>PostgreSQL</span><span>Docker</span></div>
+        </div>
+      </details>
+      <details>
+        <summary><span class="t"><span class="sub">UTSA · Web Technologies</span>Self-hosted coursework server</span><span class="meta">2026</span></summary>
+        <div class="body">
+          I run all my web tech assignments on my own AWS EC2 server instead of the class sandbox. Apache, HTTPS, and PHP form validation, all managed over SSH.
+          <div class="tags"><span>AWS EC2</span><span>Linux</span><span>PHP</span><span>Bash</span></div>
+        </div>
+      </details>
+      <details>
+        <summary><span class="t"><span class="sub">UTSA</span>Data structures from scratch</span><span class="meta">2024</span></summary>
+        <div class="body">
+          Linked lists, binary trees, hash maps, and sorting algorithms written from scratch, comparing time and space complexity across approaches.
+          <div class="tags"><span>Java</span><span>Python</span></div>
+        </div>
+      </details>
+    </div>
+
+  </section>
+
+  <!-- GARAGE -->
+  <section id="garage" class="view">
+    <h2>the <em>garage</em></h2>
+    <div class="hint">cars got me into engineering before code did</div>
+
+    <div class="group">
+      <div class="label">Current build</div>
+      <details open>
+        <summary><span class="t"><span class="sub">Project</span>1996 BMW E36 328i</span><span class="meta">running</span></summary>
+        <div class="body">
+          Bought it as a non-runner off Facebook Marketplace with a pile of turbo parts and a spare M52. Got it running. Next step is turning it into a turbo drift car with a hood-exit exhaust.
+          <dl class="spec">
+            <dt>engine</dt><dd>M52 inline-6 (spare in the corner)</dd>
+            <dt>plan</dt><dd>Turbo, drift setup, hood-exit exhaust</dd>
+            <dt>status</dt><dd>Was a no-start. Now it runs.</dd>
+          </dl>
+        </div>
+      </details>
+    </div>
+
+    <div class="group">
+      <div class="label">Previously</div>
+      <details>
+        <summary><span class="t"><span class="sub">Sold</span>BMW F80 M3</span><span class="meta">single turbo</span></summary>
+        <div class="body">
+          A heavily modified S55 converted to a single turbo and running ethanol (E65–73) on a Bend Calibrator tune. It taught me more about debugging than most classes have.
+          <ul>
+            <li>Read datalogs with my tuner to chase overboost (~29 psi against a 23 psi target), partly fixed with an aluminum charge pipe</li>
+            <li>Traced bank 2 O2 sensor faults to heat damage from the turbo reroute</li>
+            <li>Diagnosed a fuel smell under boost and white smoke on lift-off back to an injector o-ring and turbo seal wear</li>
+          </ul>
+          <div class="tags"><span>S55</span><span>E85</span><span>MHD datalogs</span></div>
+        </div>
+      </details>
+    </div>
+
+    <div class="group">
+      <div class="label">Off the road</div>
+      <details>
+        <summary><span class="t"><span class="sub">Rig</span>The PC</span><span class="meta">self-built</span></summary>
+        <div class="body">
+          <dl class="spec">
+            <dt>cpu</dt><dd>Ryzen 9 5900X</dd>
+            <dt>gpu</dt><dd>RTX 5090</dd>
+            <dt>board</dt><dd>MSI MAG B550 Tomahawk</dd>
+            <dt>ram</dt><dd>64GB DDR4</dd>
+            <dt>plays</dt><dd>Sim racing, Forza, CS2, League, Tarkov</dd>
+          </dl>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience" class="view">
+    <h2><em>experience</em></h2>
+    <div class="hint">the short version. Full details are on my resume.</div>
+    <div class="timeline">
+      <div class="tl now">
+        <div class="when">2026 – present</div>
+        <div class="what">Founding Engineer · SaferRing</div>
+        <div class="where">Own the codebase, run beta tests, approve updates, and ship to the App Store</div>
+      </div>
+      <div class="tl now">
+        <div class="when">Aug 2024 – Spring 2027</div>
+        <div class="what">B.S. Software Engineering (AI) · UTSA</div>
+        <div class="where">3.8 major GPA · transferred from UTRGV, where I started in mechanical engineering</div>
+      </div>
+      <div class="tl">
+        <div class="when">Apr 2024 – Aug 2026</div>
+        <div class="what">Owner / Operator · Veloce Studio</div>
+        <div class="where">Vinyl wraps, window tint, and PPF. Built the client base from zero while in school full time</div>
+      </div>
+      <div class="tl">
+        <div class="when">Jan 2020 – Aug 2026</div>
+        <div class="what">Pest Control Technician · A-1 Pro Termite &amp; Pest Control</div>
+        <div class="where">Six years of residential and commercial routes in Brownsville and San Antonio, in English and Spanish</div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div><b>languages</b>Java, C, Python, JavaScript, TypeScript, Swift</div>
+      <div><b>tools</b>Git, Xcode, Bash, AWS EC2, Netlify, Twilio, Docker, PostgreSQL</div>
+      <div><b>ai</b>Claude API, prompt engineering, red-teaming</div>
+      <div><b>spoken</b>English &amp; Spanish</div>
+    </div>
+
+    <a class="resume-btn" href="resume.pdf" target="_blank" rel="noopener">download resume (pdf)</a>
+  </section>
+
+</main>
+
+<footer>© <span id="yr">2026</span> Kenneth Acosta · built from scratch</footer>
+
+<script>
+  const views = ["about","building","garage","experience"];
+  function show(name){
+    if(!views.includes(name)) name = "about";
+    document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === name));
+    document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active", b.dataset.go === name));
+    if(location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll("[data-go]").forEach(el => el.addEventListener("click", e => { e.preventDefault(); show(el.dataset.go); }));
+  window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+  document.getElementById("yr").textContent = new Date().getFullYear();
+  show(location.hash.slice(1));
+
+  // ---- full-page code field + E36 drawn in code ----
+  (function(){
+    const cv = document.getElementById("codecar");
+    if (!cv || getComputedStyle(cv).display === "none") return;
+    const ctx = cv.getContext("2d");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const CODE = `const kenneth = { school: "UTSA", major: "software", focus: "AI" };
+let car = { chassis: "E36", engine: "M52", turbo: true, exhaust: "hood-exit" };
+function pull(rpm) { return rpm > 4000 ? boost(rpm) : idle(); }
+async function screenCall(caller) { const why = await ask(caller, "reason");
+  if (risk(why) > 0.8) block(caller); else connect(caller, why); }
+while (learning) { build(); breakThings(); fixThem(); ship(); }
+// hardware meets software
+export default { saferring: "live", veloce: "built", next: "embedded" };
+`.replace(/\s+/g, " ");
+    const rc = () => { const c = CODE[(Math.random()*CODE.length)|0]; return c === " " ? ";" : c; };
+
+    let W, H, DPR, car = [], dust = [], wheels = [], fs = 6.4, dim = 1;
+
+    function buildCar(){
+      // car box on the right side of the screen
+      const carW = Math.min(W * 0.5, 720), sc = carW / 640, carH = 300 * sc;
+      const ox = W - carW - W * 0.015, oy = H / 2 - carH * 0.42;
+      dim = W < 1180 ? 0.35 : 1;
+      const m = document.createElement("canvas"); m.width = Math.ceil(carW); m.height = Math.ceil(carH);
+      const mc = m.getContext("2d");
+      mc.scale(sc, sc); mc.translate(20, 40);
+      mc.fillStyle = "#fff";
+      mc.beginPath();
+      mc.moveTo(28,178); mc.lineTo(16,166); mc.lineTo(14,146); mc.quadraticCurveTo(16,132,34,128);
+      mc.lineTo(200,114); mc.quadraticCurveTo(236,92,270,72); mc.quadraticCurveTo(330,62,396,66);
+      mc.quadraticCurveTo(436,84,468,104); mc.lineTo(560,110); mc.quadraticCurveTo(580,112,584,124);
+      mc.lineTo(588,160); mc.lineTo(578,178);
+      mc.lineTo(522,178); mc.arc(476,178,46,0,Math.PI,true);
+      mc.lineTo(178,178); mc.arc(132,178,46,0,Math.PI,true);
+      mc.closePath(); mc.fill();
+      mc.fillStyle = "#00f";
+      mc.beginPath(); mc.moveTo(220,112); mc.quadraticCurveTo(250,90,282,78); mc.lineTo(338,75); mc.lineTo(338,110); mc.closePath(); mc.fill();
+      mc.beginPath(); mc.moveTo(350,75); mc.lineTo(394,74); mc.quadraticCurveTo(428,90,452,106); mc.lineTo(350,110); mc.closePath(); mc.fill();
+      mc.globalCompositeOperation = "destination-out"; mc.fillRect(40,140,540,3); mc.globalCompositeOperation = "source-over";
+      mc.fillStyle = "#f00";
+      [132,476].forEach(x => { mc.beginPath(); mc.arc(x,184,40,0,Math.PI*2); mc.arc(x,184,24,0,Math.PI*2,true); mc.fill();
+                               mc.beginPath(); mc.arc(x,184,9,0,Math.PI*2); mc.fill(); });
+      const data = mc.getImageData(0,0,m.width,m.height).data;
+      wheels = [132,476].map(x => ({ cx: ox + (x+20)*sc, cy: oy + (184+40)*sc }));
+      const CW = 4.6*sc, CH = 6.4*sc; fs = 6.4*sc;
+      const old = car; car = []; let ci = 0;
+      for (let y = 4*sc; y < m.height; y += CH) for (let x = 2*sc; x < m.width; x += CW) {
+        const i = ((Math.round(y) * m.width) + Math.round(x)) * 4;
+        if (data[i+3] < 128) continue;
+        const isWheel = data[i] > 200 && data[i+1] < 50 && data[i+2] < 50;
+        const isGlass = data[i+2] > 200 && data[i] < 50;
+        let ch = CODE[ci++ % CODE.length]; if (ch === " ") ch = CODE[ci++ % CODE.length];
+        const hx = ox + x, hy = oy + y;
+        const p = { hx, hy, x: Math.random()*W, y: Math.random()*H, vx:0, vy:0, ch,
+          c: isWheel ? "#e3a64b" : isGlass ? "#5cc8ec" : (Math.random() < .05 ? "#5cc8ec" : "#8f8b82"),
+          a: isWheel ? .9 : isGlass ? .22 : .5 + Math.random()*.35 };
+        if (isWheel) {   // remember polar coords so the wheel can spin
+          const w = wheels[hx < (wheels[0].cx + wheels[1].cx)/2 ? 0 : 1];
+          p.w = w; p.r = Math.hypot(hx - w.cx, hy - w.cy); p.ang = Math.atan2(hy - w.cy, hx - w.cx);
+        }
+        if (reduce) { p.x = hx; p.y = hy; }
+        car.push(p);
+      }
+    }
+    function buildDust(){
+      const n = Math.round(W * H / 7000);
+      dust = Array.from({length:n}, () => ({ x: Math.random()*W, y: Math.random()*H,
+        vx: (Math.random()-.5)*.25, vy: (Math.random()-.5)*.25, bx:0, by:0, ch: rc(),
+        a: .18 + Math.random()*.25, c: Math.random() < .12 ? "#e3a64b" : (Math.random() < .2 ? "#5cc8ec" : "#8f8b82") }));
+    }
+    function resize(){
+      DPR = Math.min(2, devicePixelRatio || 1);
+      W = innerWidth; H = innerHeight;
+      cv.width = W * DPR; cv.height = H * DPR;
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      buildCar(); buildDust();
+    }
+    resize();
+    let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(resize, 150); });
+
+    // mouse, click blast, scroll spin
+    let mx = -999, my = -999, spin = 0, wheelAng = 0, lastY = scrollY;
+    addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; });
+    document.addEventListener("mouseleave", () => { mx = my = -999; });
+    addEventListener("mousedown", e => {
+      if (e.target.closest("a,button,summary,details .body")) return;
+      const blast = (p, power) => { const dx = p.x - e.clientX, dy = p.y - e.clientY, d = Math.hypot(dx,dy) || 1;
+        if (d < 420) { const f = (1 - d/420) * power; p.vx += dx/d*f; p.vy += dy/d*f; } };
+      car.forEach(p => { const d = Math.hypot(p.x - e.clientX, p.y - e.clientY); if (d < 420) { blast(p, 30); p.free = 40 + Math.random()*40; } });
+      dust.forEach(p => blast(p, 12));
+    });
+    addEventListener("scroll", () => { spin += (scrollY - lastY) * 0.004; lastY = scrollY; }, {passive:true});
+
+    const R = 80;
+    (function loop(){
+      ctx.clearRect(0,0,W,H);
+      ctx.font = `500 ${fs}px 'JetBrains Mono', monospace`;
+      ctx.textBaseline = "middle";
+      // wheel spin from scroll (plus a lazy idle roll)
+      wheelAng += spin + (reduce ? 0 : 0.002); spin *= 0.9;
+
+      // dust: drifts, pushed by mouse, wraps around
+      for (const p of dust) {
+        const dx = p.x - mx, dy = p.y - my, d2 = dx*dx + dy*dy;
+        if (d2 < R*R*1.6) { const d = Math.sqrt(d2) || 1, f = (1 - d/(R*1.26)) * 1.4; p.bx += dx/d*f; p.by += dy/d*f; }
+        p.bx *= .9; p.by *= .9;
+        p.x += p.vx + p.bx; p.y += p.vy + p.by;
+        if (p.x < -10) p.x = W+10; if (p.x > W+10) p.x = -10; if (p.y < -10) p.y = H+10; if (p.y > H+10) p.y = -10;
+        if (!reduce && Math.random() < .002) p.ch = rc();
+        ctx.globalAlpha = p.a * Math.max(dim, .6); ctx.fillStyle = p.c; ctx.fillText(p.ch, p.x, p.y);
+      }
+      // car
+      for (const p of car) {
+        let hx = p.hx, hy = p.hy;
+        if (p.w) { const a = p.ang + wheelAng; hx = p.w.cx + Math.cos(a)*p.r; hy = p.w.cy + Math.sin(a)*p.r; }
+        const dx = p.x - mx, dy = p.y - my, d2 = dx*dx + dy*dy;
+        if (d2 < R*R && !reduce) { const d = Math.sqrt(d2) || 1, f = (1 - d/R) * 2.4; p.vx += dx/d*f; p.vy += dy/d*f; }
+        const k = p.free > 0 ? 0.004 : 0.045, damp = p.free > 0 ? 0.95 : 0.82;
+        if (p.free > 0) p.free--;
+        p.vx += (hx - p.x) * k; p.vy += (hy - p.y) * k;
+        p.vx *= damp; p.vy *= damp;
+        p.x += p.vx; p.y += p.vy;
+        if (!reduce && Math.random() < 0.0015) p.ch = rc();
+        ctx.globalAlpha = p.a * dim; ctx.fillStyle = p.c; ctx.fillText(p.ch, p.x, p.y);
+      }
+      requestAnimationFrame(loop);
+    })();
+  })();
+</script>
+</body>
+</html>
